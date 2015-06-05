@@ -57,6 +57,7 @@
     <Compile Include="DbContextReadOnlyScope.cs" />
     <Compile Include="DbContextScope.cs" />
     <Compile Include="DbContextScopeFactory.cs" />
+    <Compile Include="ExceptionDispatchInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

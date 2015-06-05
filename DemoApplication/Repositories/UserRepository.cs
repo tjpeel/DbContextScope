@@ -50,10 +50,10 @@ namespace Numero3.EntityFramework.Demo.Repositories
 			return DbContext.Users.Find(userId);
 		}
 
-		public Task<User> GetAsync(Guid userId)
-		{
-			return DbContext.Users.FindAsync(userId);
-		}
+        //public Task<User> GetAsync(Guid userId)
+        //{
+        //    return DbContext.Users.FindAsync(userId);
+        //}
 
 		public void Add(User user)
 		{

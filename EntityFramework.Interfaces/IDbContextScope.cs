@@ -51,13 +51,13 @@ namespace Numero3.EntityFramework.Interfaces
         /// Saves the changes in all the DbContext instances that were created within this scope.
         /// This method can only be called once per scope.
         /// </summary>
-        Task<int> SaveChangesAsync();
+        //Task<int> SaveChangesAsync();
 
         /// <summary>
         /// Saves the changes in all the DbContext instances that were created within this scope.
         /// This method can only be called once per scope.
         /// </summary>
-        Task<int> SaveChangesAsync(CancellationToken cancelToken);
+        //Task<int> SaveChangesAsync(CancellationToken cancelToken);
 
         /// <summary>
         /// Reloads the provided persistent entities from the data store
@@ -91,7 +91,7 @@ namespace Numero3.EntityFramework.Interfaces
 		/// (this is a pretty advanced feature that should be used 
 		/// with parsimony). 
 		/// </summary>
-        Task RefreshEntitiesInParentScopeAsync(IEnumerable entities);
+        //Task RefreshEntitiesInParentScopeAsync(IEnumerable entities);
 
         /// <summary>
         /// The DbContext instances that this DbContextScope manages. Don't call SaveChanges() on the DbContext themselves!
