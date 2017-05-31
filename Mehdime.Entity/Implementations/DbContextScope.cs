@@ -87,41 +87,41 @@ namespace Mehdime.Entity
             return c;
         }
 
-        public Task<int> SaveChangesAsync()
-        {
-            return SaveChangesAsync(CancellationToken.None);
-        }
+        //public Task<int> SaveChangesAsync()
+        //{
+        //    return SaveChangesAsync(CancellationToken.None);
+        //}
 
-        public async Task<int> SaveChangesAsync(CancellationToken cancelToken)
-        {
-            if (cancelToken == null)
-                throw new ArgumentNullException("cancelToken");
-            if (_disposed)
-                throw new ObjectDisposedException("DbContextScope");
-            if (_completed)
-                throw new InvalidOperationException("You cannot call SaveChanges() more than once on a DbContextScope. A DbContextScope is meant to encapsulate a business transaction: create the scope at the start of the business transaction and then call SaveChanges() at the end. Calling SaveChanges() mid-way through a business transaction doesn't make sense and most likely mean that you should refactor your service method into two separate service method that each create their own DbContextScope and each implement a single business transaction.");
+        //public async Task<int> SaveChangesAsync(CancellationToken cancelToken)
+        //{
+        //    if (cancelToken == null)
+        //        throw new ArgumentNullException("cancelToken");
+        //    if (_disposed)
+        //        throw new ObjectDisposedException("DbContextScope");
+        //    if (_completed)
+        //        throw new InvalidOperationException("You cannot call SaveChanges() more than once on a DbContextScope. A DbContextScope is meant to encapsulate a business transaction: create the scope at the start of the business transaction and then call SaveChanges() at the end. Calling SaveChanges() mid-way through a business transaction doesn't make sense and most likely mean that you should refactor your service method into two separate service method that each create their own DbContextScope and each implement a single business transaction.");
 
-            // Only save changes if we're not a nested scope. Otherwise, let the top-level scope 
-            // decide when the changes should be saved.
-            var c = 0;
-            if (!_nested)
-            {
-                c = await CommitInternalAsync(cancelToken).ConfigureAwait(false);
-            }
+        //    // Only save changes if we're not a nested scope. Otherwise, let the top-level scope 
+        //    // decide when the changes should be saved.
+        //    var c = 0;
+        //    if (!_nested)
+        //    {
+        //        c = await CommitInternalAsync(cancelToken).ConfigureAwait(false);
+        //    }
 
-            _completed = true;
-            return c;
-        }
+        //    _completed = true;
+        //    return c;
+        //}
 
         private int CommitInternal()
         {
             return _dbContexts.Commit();
         }
 
-        private Task<int> CommitInternalAsync(CancellationToken cancelToken)
-        {
-            return _dbContexts.CommitAsync(cancelToken);
-        }
+        //private Task<int> CommitInternalAsync(CancellationToken cancelToken)
+        //{
+        //    return _dbContexts.CommitAsync(cancelToken);
+        //}
 
         private void RollbackInternal()
         {
@@ -150,15 +150,15 @@ namespace Mehdime.Entity
             // entities from one DbContext instance to another. NHibernate has support for this sort of stuff 
             // but EF still lags behind in this respect. But there is hope: https://entityframework.codeplex.com/workitem/864
 
-			// NOTE: DbContext implements the ObjectContext property of the IObjectContextAdapter interface explicitely.
-			// So we must cast the DbContext instances to IObjectContextAdapter in order to access their ObjectContext.
-			// This cast is completely safe.
+            // NOTE: DbContext implements the ObjectContext property of the IObjectContextAdapter interface explicitely.
+            // So we must cast the DbContext instances to IObjectContextAdapter in order to access their ObjectContext.
+            // This cast is completely safe.
 
-			foreach (IObjectContextAdapter contextInCurrentScope in _dbContexts.InitializedDbContexts.Values)
+            foreach (IObjectContextAdapter contextInCurrentScope in _dbContexts.InitializedDbContexts.Values)
             {
                 var correspondingParentContext =
                     _parentScope._dbContexts.InitializedDbContexts.Values.SingleOrDefault(parentContext => parentContext.GetType() == contextInCurrentScope.GetType())
-					as IObjectContextAdapter;
+                    as IObjectContextAdapter;
 
                 if (correspondingParentContext == null)
                     continue; // No DbContext of this type has been created in the parent scope yet. So no need to refresh anything for this DbContext type.
@@ -193,47 +193,47 @@ namespace Mehdime.Entity
             }
         }
 
-        public async Task RefreshEntitiesInParentScopeAsync(IEnumerable entities)
-        {
-            // See comments in the sync version of this method for an explanation of what we're doing here.
+        //public async Task RefreshEntitiesInParentScopeAsync(IEnumerable entities)
+        //{
+        //    // See comments in the sync version of this method for an explanation of what we're doing here.
 
-            if (entities == null)
-                return;
+        //    if (entities == null)
+        //        return;
 
-            if (_parentScope == null)
-                return;
+        //    if (_parentScope == null)
+        //        return;
 
-            if (_nested) 
-                return;
+        //    if (_nested) 
+        //        return;
 
-			foreach (IObjectContextAdapter contextInCurrentScope in _dbContexts.InitializedDbContexts.Values)
-            {
-                var correspondingParentContext =
-                    _parentScope._dbContexts.InitializedDbContexts.Values.SingleOrDefault(parentContext => parentContext.GetType() == contextInCurrentScope.GetType())
-					as IObjectContextAdapter;
+        //    foreach (IObjectContextAdapter contextInCurrentScope in _dbContexts.InitializedDbContexts.Values)
+        //    {
+        //        var correspondingParentContext =
+        //            _parentScope._dbContexts.InitializedDbContexts.Values.SingleOrDefault(parentContext => parentContext.GetType() == contextInCurrentScope.GetType())
+        //            as IObjectContextAdapter;
 
-                if (correspondingParentContext == null)
-                    continue; 
+        //        if (correspondingParentContext == null)
+        //            continue; 
 
-                foreach (var toRefresh in entities)
-                {
-                    ObjectStateEntry stateInCurrentScope;
-                    if (contextInCurrentScope.ObjectContext.ObjectStateManager.TryGetObjectStateEntry(toRefresh, out stateInCurrentScope))
-                    {
-                        var key = stateInCurrentScope.EntityKey;
+        //        foreach (var toRefresh in entities)
+        //        {
+        //            ObjectStateEntry stateInCurrentScope;
+        //            if (contextInCurrentScope.ObjectContext.ObjectStateManager.TryGetObjectStateEntry(toRefresh, out stateInCurrentScope))
+        //            {
+        //                var key = stateInCurrentScope.EntityKey;
 
-                        ObjectStateEntry stateInParentScope;
-                        if (correspondingParentContext.ObjectContext.ObjectStateManager.TryGetObjectStateEntry(key, out stateInParentScope))
-                        {
-                            if (stateInParentScope.State == EntityState.Unchanged)
-                            {
-                                await correspondingParentContext.ObjectContext.RefreshAsync(RefreshMode.StoreWins, stateInParentScope.Entity).ConfigureAwait(false);
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        //                ObjectStateEntry stateInParentScope;
+        //                if (correspondingParentContext.ObjectContext.ObjectStateManager.TryGetObjectStateEntry(key, out stateInParentScope))
+        //                {
+        //                    if (stateInParentScope.State == EntityState.Unchanged)
+        //                    {
+        //                        await correspondingParentContext.ObjectContext.RefreshAsync(RefreshMode.StoreWins, stateInParentScope.Entity).ConfigureAwait(false);
+        //                    }
+        //                }
+        //            }
+        //        }
+        //    }
+        //}
 
         public void Dispose()
         {

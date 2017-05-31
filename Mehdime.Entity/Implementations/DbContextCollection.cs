@@ -143,57 +143,57 @@ namespace Mehdime.Entity
             return c;
         }
 
-        public Task<int> CommitAsync()
-        {
-            return CommitAsync(CancellationToken.None);
-        }
+        //public Task<int> CommitAsync()
+        //{
+        //    return CommitAsync(CancellationToken.None);
+        //}
 
-        public async Task<int> CommitAsync(CancellationToken cancelToken)
-        {
-            if (cancelToken == null)
-                throw new ArgumentNullException("cancelToken");
-            if (_disposed)
-                throw new ObjectDisposedException("DbContextCollection");
-            if (_completed)
-                throw new InvalidOperationException("You can't call Commit() or Rollback() more than once on a DbContextCollection. All the changes in the DbContext instances managed by this collection have already been saved or rollback and all database transactions have been completed and closed. If you wish to make more data changes, create a new DbContextCollection and make your changes there.");
+        //public async Task<int> CommitAsync(CancellationToken cancelToken)
+        //{
+        //    if (cancelToken == null)
+        //        throw new ArgumentNullException("cancelToken");
+        //    if (_disposed)
+        //        throw new ObjectDisposedException("DbContextCollection");
+        //    if (_completed)
+        //        throw new InvalidOperationException("You can't call Commit() or Rollback() more than once on a DbContextCollection. All the changes in the DbContext instances managed by this collection have already been saved or rollback and all database transactions have been completed and closed. If you wish to make more data changes, create a new DbContextCollection and make your changes there.");
 
-            // See comments in the sync version of this method for more details.
+        //    // See comments in the sync version of this method for more details.
 
-            ExceptionDispatchInfo lastError = null;
+        //    ExceptionDispatchInfo lastError = null;
 
-            var c = 0;
+        //    var c = 0;
 
-            foreach (var dbContext in _initializedDbContexts.Values)
-            {
-                try
-                {
-                    if (!_readOnly)
-                    {
-                        c += await dbContext.SaveChangesAsync(cancelToken).ConfigureAwait(false);
-                    }
+        //    foreach (var dbContext in _initializedDbContexts.Values)
+        //    {
+        //        try
+        //        {
+        //            if (!_readOnly)
+        //            {
+        //                c += await dbContext.SaveChangesAsync(cancelToken).ConfigureAwait(false);
+        //            }
 
-                    // If we've started an explicit database transaction, time to commit it now.
-                    var tran = GetValueOrDefault(_transactions, dbContext);
-                    if (tran != null)
-                    {
-                        tran.Commit();
-                        tran.Dispose();
-                    }
-                }
-                catch (Exception e)
-                {
-                    lastError = ExceptionDispatchInfo.Capture(e);
-                }
-            }
+        //            // If we've started an explicit database transaction, time to commit it now.
+        //            var tran = GetValueOrDefault(_transactions, dbContext);
+        //            if (tran != null)
+        //            {
+        //                tran.Commit();
+        //                tran.Dispose();
+        //            }
+        //        }
+        //        catch (Exception e)
+        //        {
+        //            lastError = ExceptionDispatchInfo.Capture(e);
+        //        }
+        //    }
 
-            _transactions.Clear();
-            _completed = true;
+        //    _transactions.Clear();
+        //    _completed = true;
 
-            if (lastError != null)
-                lastError.Throw(); // Re-throw while maintaining the exception's original stack track
+        //    if (lastError != null)
+        //        lastError.Throw(); // Re-throw while maintaining the exception's original stack track
 
-            return c;
-        }
+        //    return c;
+        //}
 
         public void Rollback()
         {
